@@ -54,11 +54,20 @@ selected_months = st.sidebar.multiselect("Selecione os meses", ano_meses, defaul
 df['Mes_Str'] = df[date_col].dt.to_period('M').astype(str)
 filtered_df = df[df['Mes_Str'].isin(selected_months)]
 
+todas_categorias = sorted(["Não Categorizado", "Vazamento", "Aplicação", "Essencial", "Fixo", "Lazer", "Salário", "Recebimento", "Resgate", "Transferência", "Outro", "Pix", "Alimentação", "Mercado Livre", "Tabacaria", "Transporte", "Pet Shop", "Farmácia", "Material de Construção", "Veterinária", "Supermercado", "Restaurante", "Bar", "Cabeleireiro", "Academia", "Educação", "Saúde", "Viagem", "Entretenimento", "Serasa"])
+all_cats = sorted(list(set(df['categoria'].dropna().unique().tolist() + todas_categorias)))
+
 tab_resumo, tab_analise, tab_gestao = st.tabs(["Resumo Mensal", "An\u00e1lise de Vazamentos", "Gest\u00e3o e Anota\u00e7\u00f5es"])
 
 with tab_resumo:
     st.header("Resumo Mensal")
-    resumo = filtered_df.groupby(['Mes_Str', 'Tipo'])[val_col].sum().unstack(fill_value=0)
+    resumo_cat_filter = st.multiselect("Filtrar por Categoria", all_cats, key="resumo_cat_filter")
+    
+    resumo_df = filtered_df.copy()
+    if resumo_cat_filter:
+        resumo_df = resumo_df[resumo_df['categoria'].isin(resumo_cat_filter)]
+        
+    resumo = resumo_df.groupby(['Mes_Str', 'Tipo'])[val_col].sum().unstack(fill_value=0)
     if 'Entrada' not in resumo.columns:
         resumo['Entrada'] = 0.0
     if 'Sa\u00edda' not in resumo.columns:
@@ -66,10 +75,19 @@ with tab_resumo:
     resumo['Saldo'] = resumo['Entrada'] + resumo['Sa\u00edda']
     resumo = resumo.reset_index()
 
-    col1, col2, col3 = st.columns(3)
-    col1.metric("Total Entradas", f"R$ {resumo['Entrada'].sum():,.2f}")
-    col2.metric("Total Sa\u00eddas", f"R$ {resumo['Sa\u00edda'].sum():,.2f}")
-    col3.metric("Saldo Per\u00edodo", f"R$ {resumo['Saldo'].sum():,.2f}")
+    col1, col2, col3, col4, col5 = st.columns(5)
+    
+    total_entradas = resumo['Entrada'].sum() if 'Entrada' in resumo.columns else 0.0
+    total_saidas = resumo['Saída'].sum() if 'Saída' in resumo.columns else 0.0
+    media_entradas = resumo['Entrada'].mean() if 'Entrada' in resumo.columns and len(resumo) > 0 else 0.0
+    media_saidas = resumo['Saída'].mean() if 'Saída' in resumo.columns and len(resumo) > 0 else 0.0
+    total_saldo = resumo['Saldo'].sum() if 'Saldo' in resumo.columns else 0.0
+    
+    col1.metric("Total Entradas", f"R$ {total_entradas:,.2f}")
+    col2.metric("Média Mensal Entradas", f"R$ {media_entradas:,.2f}")
+    col3.metric("Total Saídas", f"R$ {total_saidas:,.2f}")
+    col4.metric("Média Mensal Saídas", f"R$ {media_saidas:,.2f}")
+    col5.metric("Saldo Período", f"R$ {total_saldo:,.2f}")
 
     fig = px.bar(
         resumo, x='Mes_Str', y=['Entrada', 'Sa\u00edda'], barmode='group',
@@ -104,8 +122,6 @@ with tab_gestao:
     
     col_f1, col_f2, col_f3 = st.columns([1, 1, 2])
     with col_f1:
-        todas_categorias = sorted(["Não Categorizado", "Vazamento", "Aplicação", "Essencial", "Fixo", "Lazer", "Salário", "Recebimento", "Resgate", "Transferência", "Outro", "Pix", "Alimentação", "Mercado Livre", "Tabacaria", "Transporte", "Pet Shop", "Farmácia", "Material de Construção", "Veterinária", "Supermercado", "Restaurante", "Bar", "Cabeleireiro", "Academia", "Educação", "Saúde", "Viagem", "Entretenimento", "Serasa"])
-        all_cats = sorted(list(set(df['categoria'].dropna().unique().tolist() + todas_categorias)))
         cat_filter = st.multiselect("Filtrar por Categoria", all_cats)
     with col_f2:
         st.write("")

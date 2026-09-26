@@ -104,7 +104,7 @@ with tab_gestao:
     
     col_f1, col_f2, col_f3 = st.columns([1, 1, 2])
     with col_f1:
-        todas_categorias = sorted(["Não Categorizado", "Vazamento", "Aplicação", "Essencial", "Fixo", "Lazer", "Salário", "Recebimento", "Resgate", "Transferência", "Outro", "Pix"])
+        todas_categorias = sorted(["Não Categorizado", "Vazamento", "Aplicação", "Essencial", "Fixo", "Lazer", "Salário", "Recebimento", "Resgate", "Transferência", "Outro", "Pix", "Alimentação", "Mercado Livre", "Tabacaria", "Transporte", "Pet Shop", "Farmácia", "Material de Construção", "Veterinária", "Supermercado", "Restaurante", "Bar", "Cabeleireiro", "Academia", "Educação", "Saúde", "Viagem", "Entretenimento", "Serasa"])
         all_cats = sorted(list(set(df['categoria'].dropna().unique().tolist() + todas_categorias)))
         cat_filter = st.multiselect("Filtrar por Categoria", all_cats)
     with col_f2:

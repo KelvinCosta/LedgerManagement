@@ -102,15 +102,16 @@ with tab_resumo:
         labels={'Valor': 'Valor (R$)', 'Mes_Str': 'M\u00eas', 'TipoBarra': 'Tipo'},
         color_discrete_map={'Entrada': 'green', 'Sa\u00edda': 'red'}
     )
+    fig.update_xaxes(type='category')
     
     event = st.plotly_chart(fig, use_container_width=True, on_select="rerun", selection_mode="points")
     
     if event and event.selection and event.selection.points:
         selected_points = event.selection.points
-        clicked_month = selected_points[0]["x"]
+        raw_clicked_month = str(selected_points[0]["x"])
+        clicked_month = raw_clicked_month[:7] # Força pegar apenas "YYYY-MM"
         clicked_tipo = selected_points[0]["customdata"][0]
         
-        # O clicked_tipo volta como "Sa\u00edda" (ou "Saída" dependendo de como o plotly processa, mas vamos garantir comparando com startswith)
         real_tipo = "Saída" if clicked_tipo.startswith("Sa") else "Entrada"
         
         st.markdown(f"#### 🔎 Detalhamento: **{real_tipo}s** em **{clicked_month}**")
@@ -140,6 +141,11 @@ with tab_analise:
     leaks = leaks.sort_values(by=val_col)
     st.subheader(f"Gastos superiores a R$ {threshold}")
     st.metric("Somat\u00f3ria dos Vazamentos Exibidos", f"R$ {leaks[val_col].sum():,.2f}")
+    st.write(f"Debug -> Mês clicado: '{clicked_month}' | Tipo clicado: '{clicked_tipo}' | Real tipo: '{real_tipo}'")
+    st.write(f"Tamanho total resumo_df: {len(resumo_df)}")
+    st.write(f"Tipos únicos em resumo_df: {resumo_df['Tipo'].unique().tolist()}")
+    st.write(f"Meses únicos em resumo_df: {resumo_df['Mes_Str'].unique().tolist()}")
+        
     st.dataframe(leaks[[date_col, val_col, desc_col, 'categoria', 'notas', 'verificar', 'arquivo_origem']], use_container_width=True)
 
 with tab_gestao:

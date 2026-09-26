@@ -61,7 +61,12 @@ tab_resumo, tab_analise, tab_gestao = st.tabs(["Resumo Mensal", "An\u00e1lise de
 
 with tab_resumo:
     st.header("Resumo Mensal")
-    resumo_cat_filter = st.multiselect("Filtrar por Categoria", all_cats, key="resumo_cat_filter")
+    
+    # Filtrar apenas categorias que têm algum valor diferente de zero no período selecionado
+    categorias_ativas = filtered_df[filtered_df[val_col] != 0]['categoria'].dropna().unique().tolist()
+    categorias_ativas = sorted(categorias_ativas)
+    
+    resumo_cat_filter = st.multiselect("Filtrar por Categoria", categorias_ativas, key="resumo_cat_filter")
     
     resumo_df = filtered_df.copy()
     if resumo_cat_filter:

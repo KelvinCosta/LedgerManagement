@@ -105,7 +105,7 @@ with tab_gestao:
     
     col_f1, col_f2, col_f3 = st.columns([1, 1, 2])
     with col_f1:
-        todas_categorias = ["Não Categorizado", "Vazamento", "Aplicação", "Essencial", "Fixo", "Lazer", "Salário", "Recebimento"]
+        todas_categorias = ["Não Categorizado", "Vazamento", "Aplicação", "Essencial", "Fixo", "Lazer", "Salário", "Recebimento", "Transferência", "Resgate", "Outro"]
         all_cats = list(set(df['categoria'].unique().tolist() + todas_categorias))
         cat_filter = st.multiselect("Filtrar por Categoria", all_cats)
     with col_f2:

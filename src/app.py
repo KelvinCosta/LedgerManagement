@@ -105,7 +105,9 @@ with tab_gestao:
     
     col_f1, col_f2, col_f3 = st.columns([1, 1, 2])
     with col_f1:
-        cat_filter = st.multiselect("Filtrar por Categoria", df['categoria'].unique().tolist())
+        todas_categorias = ["Não Categorizado", "Vazamento", "Aplicação", "Essencial", "Fixo", "Lazer", "Salário", "Recebimento"]
+        all_cats = list(set(df['categoria'].unique().tolist() + todas_categorias))
+        cat_filter = st.multiselect("Filtrar por Categoria", all_cats)
     with col_f2:
         st.write("")
         st.write("")
@@ -123,13 +125,15 @@ with tab_gestao:
 
     edit_df = edit_df.sort_values(by=date_col, ascending=False)
     
+    st.metric("Somatória das Transações Exibidas", f"R$ {edit_df[val_col].sum():,.2f}")
+    
     edited_df = st.data_editor(
         edit_df,
         column_config={
             "categoria": st.column_config.SelectboxColumn(
                 "Categoria",
                 help="Classifique a transação",
-                options=["Não Categorizado", "Vazamento", "Aplicação", "Essencial", "Fixo", "Lazer", "Salário"],
+                options=todas_categorias,
                 required=True,
             ),
             "notas": st.column_config.TextColumn("Notas"),

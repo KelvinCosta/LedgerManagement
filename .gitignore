@@ -8,3 +8,4 @@ test_db.py
 test_merge.py
 test.py
 fix.py
+fix_db.py

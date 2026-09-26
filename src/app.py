@@ -68,10 +68,28 @@ fig = px.bar(
 st.plotly_chart(fig, use_container_width=True)
 
 st.header("🔍 Análise de Vazamentos")
-threshold = st.slider("Definir limite de gastos para considerar como 'vazamento' (R$)", min_value=0, max_value=5000, value=500, step=100)
 
-leaks = filtered_df[filtered_df[val_col] <= -threshold].sort_values(by=val_col)
+# Filtros para a análise de vazamentos
+leak_col1, leak_col2 = st.columns([2, 1])
+with leak_col1:
+    threshold = st.slider("Definir limite de gastos para considerar como 'vazamento' (R$)", min_value=0, max_value=5000, value=500, step=100)
+with leak_col2:
+    search_desc = st.text_input("Busca na Descrição", "")
+
+# Aplicar filtro de valor (Lembre-se que as saídas são negativas)
+leaks = filtered_df[filtered_df[val_col] <= -threshold]
+
+# Aplicar filtro de descrição se o usuário digitou algo
+if search_desc:
+    leaks = leaks[leaks[desc_col].str.contains(search_desc, case=False, na=False)]
+
+leaks = leaks.sort_values(by=val_col)
+total_vazamentos = leaks[val_col].sum()
+
+# Mostrar a métrica e a tabela
 st.subheader(f"Gastos superiores a R$ {threshold}")
+st.metric("Somatória dos Vazamentos Exibidos", f"R$ {total_vazamentos:,.2f}")
+
 st.dataframe(leaks[[date_col, val_col, desc_col, 'Tipo', 'arquivo_origem']], use_container_width=True)
 
 st.header("Tabela Geral de Transações")

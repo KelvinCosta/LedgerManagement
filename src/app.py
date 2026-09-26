@@ -118,6 +118,8 @@ with tab_resumo:
         details_df = resumo_df[(resumo_df['Mes_Str'] == clicked_month) & (resumo_df['Tipo'] == real_tipo)]
         details_df = details_df.sort_values(by=val_col, ascending=(real_tipo == 'Saída'))
         
+        st.metric("Somatória da Barra Selecionada", f"R$ {details_df[val_col].sum():,.2f}")
+        
         st.dataframe(
             details_df[[date_col, val_col, desc_col, 'categoria', 'notas']],
             use_container_width=True,

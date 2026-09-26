@@ -94,13 +94,34 @@ with tab_resumo:
     col4.metric("Média Mensal Saídas", f"R$ {media_saidas:,.2f}")
     col5.metric("Saldo Período", f"R$ {total_saldo:,.2f}")
 
+    resumo_melted = resumo.melt(id_vars='Mes_Str', value_vars=['Entrada', 'Sa\u00edda'], var_name='TipoBarra', value_name='Valor')
     fig = px.bar(
-        resumo, x='Mes_Str', y=['Entrada', 'Sa\u00edda'], barmode='group',
-        title='Entradas vs Sa\u00eddas por M\u00eas',
-        labels={'value': 'Valor (R$)', 'Mes_Str': 'M\u00eas', 'variable': 'Tipo'},
+        resumo_melted, x='Mes_Str', y='Valor', color='TipoBarra', barmode='group',
+        custom_data=['TipoBarra'],
+        title='Entradas vs Sa\u00eddas por M\u00eas (Clique nas barras para detalhar)',
+        labels={'Valor': 'Valor (R$)', 'Mes_Str': 'M\u00eas', 'TipoBarra': 'Tipo'},
         color_discrete_map={'Entrada': 'green', 'Sa\u00edda': 'red'}
     )
-    st.plotly_chart(fig, use_container_width=True)
+    
+    event = st.plotly_chart(fig, use_container_width=True, on_select="rerun", selection_mode="points")
+    
+    if event and event.selection and event.selection.points:
+        selected_points = event.selection.points
+        clicked_month = selected_points[0]["x"]
+        clicked_tipo = selected_points[0]["customdata"][0]
+        
+        # O clicked_tipo volta como "Sa\u00edda" (ou "Saída" dependendo de como o plotly processa, mas vamos garantir comparando com startswith)
+        real_tipo = "Saída" if clicked_tipo.startswith("Sa") else "Entrada"
+        
+        st.markdown(f"#### 🔎 Detalhamento: **{real_tipo}s** em **{clicked_month}**")
+        details_df = resumo_df[(resumo_df['Mes_Str'] == clicked_month) & (resumo_df['Tipo'] == real_tipo)]
+        details_df = details_df.sort_values(by=val_col, ascending=(real_tipo == 'Saída'))
+        
+        st.dataframe(
+            details_df[[date_col, val_col, desc_col, 'categoria', 'notas']],
+            use_container_width=True,
+            hide_index=True
+        )
 
 with tab_analise:
     st.header("🔍 An\u00e1lise de Vazamentos")

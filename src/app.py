@@ -67,15 +67,15 @@ with tab_resumo:
     resumo = resumo.reset_index()
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("Total Entradas", f"R$ {{resumo['Entrada'].sum():,.2f}}")
-    col2.metric("Total Sa\u00eddas", f"R$ {{resumo['Sa\u00edda'].sum():,.2f}}")
-    col3.metric("Saldo Per\u00edodo", f"R$ {{resumo['Saldo'].sum():,.2f}}")
+    col1.metric("Total Entradas", f"R$ {resumo['Entrada'].sum():,.2f}")
+    col2.metric("Total Sa\u00eddas", f"R$ {resumo['Sa\u00edda'].sum():,.2f}")
+    col3.metric("Saldo Per\u00edodo", f"R$ {resumo['Saldo'].sum():,.2f}")
 
     fig = px.bar(
         resumo, x='Mes_Str', y=['Entrada', 'Sa\u00edda'], barmode='group',
         title='Entradas vs Sa\u00eddas por M\u00eas',
-        labels={{'value': 'Valor (R$)', 'Mes_Str': 'M\u00eas', 'variable': 'Tipo'}},
-        color_discrete_map={{'Entrada': 'green', 'Sa\u00edda': 'red'}}
+        labels={'value': 'Valor (R$)', 'Mes_Str': 'M\u00eas', 'variable': 'Tipo'},
+        color_discrete_map={'Entrada': 'green', 'Sa\u00edda': 'red'}
     )
     st.plotly_chart(fig, use_container_width=True)
 
@@ -94,8 +94,8 @@ with tab_analise:
         leaks = leaks[leaks[desc_col].str.contains(search_desc, case=False, na=False)]
 
     leaks = leaks.sort_values(by=val_col)
-    st.subheader(f"Gastos superiores a R$ {{threshold}}")
-    st.metric("Somat\u00f3ria dos Vazamentos Exibidos", f"R$ {{leaks[val_col].sum():,.2f}}")
+    st.subheader(f"Gastos superiores a R$ {threshold}")
+    st.metric("Somat\u00f3ria dos Vazamentos Exibidos", f"R$ {leaks[val_col].sum():,.2f}")
     st.dataframe(leaks[[date_col, val_col, desc_col, 'categoria', 'notas', 'verificar', 'arquivo_origem']], use_container_width=True)
 
 with tab_gestao:
@@ -127,11 +127,11 @@ with tab_gestao:
     # Inserir coluna de checkbox para a\u00e7\u00e3o em lote
     edit_df.insert(0, 'Selecionar', False)
     
-    st.metric("Somat\u00f3ria das Transa\u00e7\u00f5es Exibidas", f"R$ {{edit_df[val_col].sum():,.2f}}")
+    st.metric("Somat\u00f3ria das Transa\u00e7\u00f5es Exibidas", f"R$ {edit_df[val_col].sum():,.2f}")
     
     edited_df = st.data_editor(
         edit_df,
-        column_config={{
+        column_config={
             "Selecionar": st.column_config.CheckboxColumn("\u2705", default=False),
             "categoria": st.column_config.SelectboxColumn(
                 "Categoria",
@@ -146,7 +146,7 @@ with tab_gestao:
             "arquivo_origem": None,
             "Tipo": None,
             "Mes_Str": None
-        }},
+        },
         disabled=[date_col, val_col, desc_col],
         use_container_width=True,
         hide_index=True,
@@ -159,7 +159,7 @@ with tab_gestao:
     with col_btn1:
         if st.button("Salvar Altera\u00e7\u00f5es Manuais", type="primary"):
             to_save = edited_df[[id_col, 'categoria', 'notas', 'verificar']].copy()
-            to_save = to_save.rename(columns={{id_col: 'identificador'}})
+            to_save = to_save.rename(columns={id_col: 'identificador'})
             
             all_annotations = load_annotations()
             if not all_annotations.empty:
@@ -180,7 +180,7 @@ with tab_gestao:
             if not selected_rows.empty:
                 to_save = selected_rows[[id_col, 'categoria', 'notas', 'verificar']].copy()
                 to_save['categoria'] = bulk_cat
-                to_save = to_save.rename(columns={{id_col: 'identificador'}})
+                to_save = to_save.rename(columns={id_col: 'identificador'})
                 
                 all_annotations = load_annotations()
                 if not all_annotations.empty:
@@ -189,7 +189,7 @@ with tab_gestao:
                     
                 save_annotations(to_save)
                 st.cache_data.clear()
-                st.success(f"Categoria '{{bulk_cat}}' aplicada a {{len(selected_rows)}} transa\u00e7\u00f5es!")
+                st.success(f"Categoria '{bulk_cat}' aplicada a {len(selected_rows)} transa\u00e7\u00f5es!")
                 st.rerun()
             else:
                 st.warning("Nenhuma linha selecionada. Marque as caixinhas '\u2705' na tabela primeiro.")

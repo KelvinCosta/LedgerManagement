@@ -104,7 +104,7 @@ with tab_gestao:
     
     col_f1, col_f2, col_f3 = st.columns([1, 1, 2])
     with col_f1:
-        todas_categorias = sorted(["Não Categorizado", "Vazamento", "Aplicação", "Essencial", "Fixo", "Lazer", "Salário", "Recebimento", "Resgate", "Transferência", "Outro"])
+        todas_categorias = sorted(["Não Categorizado", "Vazamento", "Aplicação", "Essencial", "Fixo", "Lazer", "Salário", "Recebimento", "Resgate", "Transferência", "Outro", "Pix"])
         all_cats = sorted(list(set(df['categoria'].dropna().unique().tolist() + todas_categorias)))
         cat_filter = st.multiselect("Filtrar por Categoria", all_cats)
     with col_f2:
@@ -139,7 +139,7 @@ with tab_gestao:
             "categoria": st.column_config.SelectboxColumn(
                 "Categoria",
                 help="Classifique a transa\u00e7\u00e3o",
-                options=todas_categorias,
+                options=all_cats,
                 required=True,
             ),
             "notas": st.column_config.TextColumn("Notas"),

@@ -80,7 +80,7 @@ with tab_resumo:
     st.plotly_chart(fig, use_container_width=True)
 
 with tab_analise:
-    st.header("\ud83d\udd0d An\u00e1lise de Vazamentos")
+    st.header("🔍 An\u00e1lise de Vazamentos")
     st.markdown("Aqui mostramos sa\u00eddas suspeitas. **Transa\u00e7\u00f5es categorizadas como 'Aplica\u00e7\u00e3o' s\u00e3o automaticamente removidas desta lista.**")
     
     leak_col1, leak_col2 = st.columns([2, 1])

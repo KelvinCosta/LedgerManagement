@@ -123,12 +123,15 @@ with tab_gestao:
         edit_df = edit_df[edit_df[desc_col].str.contains(search_edit_desc, case=False, na=False)]
 
     edit_df = edit_df.sort_values(by=date_col, ascending=False)
-    
-    # Inserir coluna de checkbox para a\u00e7\u00e3o em lote
-    edit_df.insert(0, 'Selecionar', False)
-    
-    st.metric("Somat\u00f3ria das Transa\u00e7\u00f5es Exibidas", f"R$ {edit_df[val_col].sum():,.2f}")
-    
+    col_m1, col_m2 = st.columns([3, 1])
+    with col_m1:
+        st.metric("Somatória das Transações Exibidas", f"R$ {edit_df[val_col].sum():,.2f}")
+    with col_m2:
+        st.write("") # push down a bit
+        select_all = st.checkbox("Selecionar todas visíveis")
+        
+    # Inserir coluna de checkbox para ação em lote
+    edit_df.insert(0, 'Selecionar', select_all)
     edited_df = st.data_editor(
         edit_df,
         column_config={

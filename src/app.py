@@ -66,7 +66,10 @@ with tab_resumo:
     categorias_ativas = filtered_df[filtered_df[val_col] != 0]['categoria'].dropna().unique().tolist()
     categorias_ativas = sorted(categorias_ativas)
     
-    resumo_cat_filter = st.multiselect("Filtrar por Categoria", categorias_ativas, key="resumo_cat_filter")
+    # Selecionar por padrão todas as ativas, exceto 'Resgate' e 'Aplicação' (e Transferência, se o usuário quiser, mas o pedido foi resgates e aplicações)
+    padrao_selecionado = [cat for cat in categorias_ativas if cat not in ['Resgate', 'Aplicação']]
+    
+    resumo_cat_filter = st.multiselect("Filtrar por Categoria", categorias_ativas, default=padrao_selecionado, key="resumo_cat_filter")
     
     resumo_df = filtered_df.copy()
     if resumo_cat_filter:
@@ -143,10 +146,6 @@ with tab_analise:
     leaks = leaks.sort_values(by=val_col)
     st.subheader(f"Gastos superiores a R$ {threshold}")
     st.metric("Somat\u00f3ria dos Vazamentos Exibidos", f"R$ {leaks[val_col].sum():,.2f}")
-    st.write(f"Debug -> Mês clicado: '{clicked_month}' | Tipo clicado: '{clicked_tipo}' | Real tipo: '{real_tipo}'")
-    st.write(f"Tamanho total resumo_df: {len(resumo_df)}")
-    st.write(f"Tipos únicos em resumo_df: {resumo_df['Tipo'].unique().tolist()}")
-    st.write(f"Meses únicos em resumo_df: {resumo_df['Mes_Str'].unique().tolist()}")
         
     st.dataframe(leaks[[date_col, val_col, desc_col, 'categoria', 'notas', 'verificar', 'arquivo_origem']], use_container_width=True)
 

@@ -4,6 +4,7 @@ import plotly.express as px
 from pathlib import Path
 import os
 import sys
+import subprocess
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.config import SILVER_DIR, EXPECTED_COLUMNS
@@ -46,6 +47,24 @@ else:
     df['notas'] = ''
     df['verificar'] = False
 
+st.sidebar.header("Administração")
+if st.sidebar.button("🔄 Sincronizar Novos Arquivos", help="Lê os CSVs da pasta Bronze, processa e atualiza o painel."):
+    with st.spinner("Processando..."):
+        try:
+            python_exe = sys.executable
+            main_script = Path(__file__).parent / 'main.py'
+            result = subprocess.run([python_exe, str(main_script)], capture_output=True, text=True)
+            if result.returncode == 0:
+                st.sidebar.success("Arquivos sincronizados!")
+                st.cache_data.clear()
+                st.rerun()
+            else:
+                st.sidebar.error("Erro na sincronização!")
+                st.sidebar.text(result.stderr)
+        except Exception as e:
+            st.sidebar.error(f"Erro inesperado: {e}")
+
+st.sidebar.markdown("---")
 st.sidebar.header("Filtros Globais")
 ano_meses = df[date_col].dt.to_period('M').astype(str).unique().tolist()
 ano_meses.sort()
